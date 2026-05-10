@@ -168,25 +168,36 @@ export class HttpClient {
   }
 
   /**
-   * Fetch a URL via the authenticated context's request fixture. Lighter
-   * than `goto` because it doesn't open a Page — useful when we only need
-   * the HTML and no JS rendering.
+   * Fetch the SSR HTML of a URL by navigating with a real Playwright Page.
+   *
+   * Instagram only embeds the Apollo bbox payload (`xdt_api__v1__*`
+   * fields) when the request looks like a browser navigation; the
+   * lighter `context.request.get` path receives the SPA shell with no
+   * server-rendered data. So we open a Page, navigate, read HTML, close.
+   *
+   * Costs one extra ~1s page-open + close vs a plain request, but it's
+   * the only path that returns the bbox we need to parse.
    */
   async fetchHtml(url: string): Promise<string> {
     if (!this.context) {
       throw new Error("HttpClient not initialized — call initWithStorageState() first");
     }
     await this.sleepForJitter();
-    const response = await this.context.request.get(url, {
-      timeout: this.navigationTimeoutMs,
-    });
-    this.lastRequestAt = Date.now();
-    const finalUrl: string = response.url();
-    this.detectAuthFailure(finalUrl);
-    if (response.status() >= 400) {
-      throw new Error(`HTTP ${response.status()} on GET ${url}`);
+    const page = await this.context.newPage();
+    try {
+      const response = await page.goto(url, {
+        timeout: this.navigationTimeoutMs,
+        waitUntil: "domcontentloaded",
+      });
+      this.lastRequestAt = Date.now();
+      this.detectAuthFailure(page.url());
+      if (response && response.status() >= 400) {
+        throw new Error(`HTTP ${response.status()} on GET ${url}`);
+      }
+      return await page.content();
+    } finally {
+      await page.close().catch(() => undefined);
     }
-    return await response.text();
   }
 
   async dispose(): Promise<void> {
