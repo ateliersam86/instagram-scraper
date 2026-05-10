@@ -1,1 +1,128 @@
-{"require":[["ScheduledServerJS","handle",null,[{"__bbox":{"require":[["RelayPrefetchedStreamCache","next",[],["adp_PolarisPostRootQueryRelayPreloader_fixture",{"__bbox":{"complete":true,"result":{"data":{"xdt_api__v1__media__shortcode__web_info":{"items":[{"code":"FIXTUREcAR1","pk":"3000000000000000001","id":"3000000000000000001_900000001","taken_at":1700000000,"media_type":8,"caption":{"text":"🏊‍♂️🚴‍♀️🏃‍♂️ Synthetic carousel caption with #fixture and @other_fixture mention","pk":"100000000000000000","has_translation":false,"created_at":1700000000},"comment_count":2,"like_count":115,"user":{"pk":"900000001","username":"fixture_org","full_name":"Fixture Organisation","profile_pic_url":"https://scontent-fixture.cdninstagram.com/fixture-author.jpg","is_verified":false},"original_width":1439,"original_height":959,"image_versions2":{"candidates":[{"url":"https://scontent-fixture.cdninstagram.com/cover-fullsize.jpg","width":1439,"height":959},{"url":"https://scontent-fixture.cdninstagram.com/cover-thumb.jpg","width":480,"height":320}]},"carousel_media":[{"id":"3000000000000000010","media_type":1,"original_width":1439,"original_height":959,"image_versions2":{"candidates":[{"url":"https://scontent-fixture.cdninstagram.com/v/t51.82787-15/slot-1-fullsize.jpg","height":959,"width":1439}]}},{"id":"3000000000000000020","media_type":1,"original_width":1439,"original_height":959,"image_versions2":{"candidates":[{"url":"https://scontent-fixture.cdninstagram.com/v/t51.82787-15/slot-2-fullsize.jpg","height":959,"width":1439}]}},{"id":"3000000000000000030","media_type":1,"original_width":1439,"original_height":959,"image_versions2":{"candidates":[{"url":"https://scontent-fixture.cdninstagram.com/v/t51.82787-15/slot-3-fullsize.jpg","height":959,"width":1439}]}}],"carousel_media_count":3,"coauthor_producers":[],"location":null,"accessibility_caption":null,"comments_disabled":false}]}}}}}]]]}}]]]}
+{
+  "require": [
+    [
+      "ScheduledServerJS",
+      "handle",
+      null,
+      [
+        {
+          "__bbox": {
+            "require": [
+              [
+                "RelayPrefetchedStreamCache",
+                "next",
+                [],
+                [
+                  "adp_PolarisPostRootQueryRelayPreloader_fixture",
+                  {
+                    "__bbox": {
+                      "complete": true,
+                      "result": {
+                        "data": {
+                          "xdt_api__v1__media__shortcode__web_info": {
+                            "items": [
+                              {
+                                "code": "FIXTUREcAR1",
+                                "pk": "3000000000000000001",
+                                "id": "3000000000000000001_900000001",
+                                "taken_at": 1700000000,
+                                "media_type": 8,
+                                "caption": {
+                                  "text": "🏊‍♂️🚴‍♀️🏃‍♂️ Synthetic carousel caption with #fixture and @other_fixture mention",
+                                  "pk": "100000000000000000",
+                                  "has_translation": false,
+                                  "created_at": 1700000000
+                                },
+                                "comment_count": 2,
+                                "like_count": 115,
+                                "user": {
+                                  "pk": "900000001",
+                                  "username": "fixture_org",
+                                  "full_name": "Fixture Organisation",
+                                  "profile_pic_url": "https://scontent-fixture.cdninstagram.com/fixture-author.jpg",
+                                  "is_verified": false
+                                },
+                                "original_width": 1439,
+                                "original_height": 959,
+                                "image_versions2": {
+                                  "candidates": [
+                                    {
+                                      "url": "https://scontent-fixture.cdninstagram.com/cover-fullsize.jpg",
+                                      "width": 1439,
+                                      "height": 959
+                                    },
+                                    {
+                                      "url": "https://scontent-fixture.cdninstagram.com/cover-thumb.jpg",
+                                      "width": 480,
+                                      "height": 320
+                                    }
+                                  ]
+                                },
+                                "carousel_media": [
+                                  {
+                                    "id": "3000000000000000010",
+                                    "media_type": 1,
+                                    "original_width": 1439,
+                                    "original_height": 959,
+                                    "image_versions2": {
+                                      "candidates": [
+                                        {
+                                          "url": "https://scontent-fixture.cdninstagram.com/v/t51.82787-15/slot-1-fullsize.jpg",
+                                          "height": 959,
+                                          "width": 1439
+                                        }
+                                      ]
+                                    }
+                                  },
+                                  {
+                                    "id": "3000000000000000020",
+                                    "media_type": 1,
+                                    "original_width": 1439,
+                                    "original_height": 959,
+                                    "image_versions2": {
+                                      "candidates": [
+                                        {
+                                          "url": "https://scontent-fixture.cdninstagram.com/v/t51.82787-15/slot-2-fullsize.jpg",
+                                          "height": 959,
+                                          "width": 1439
+                                        }
+                                      ]
+                                    }
+                                  },
+                                  {
+                                    "id": "3000000000000000030",
+                                    "media_type": 1,
+                                    "original_width": 1439,
+                                    "original_height": 959,
+                                    "image_versions2": {
+                                      "candidates": [
+                                        {
+                                          "url": "https://scontent-fixture.cdninstagram.com/v/t51.82787-15/slot-3-fullsize.jpg",
+                                          "height": 959,
+                                          "width": 1439
+                                        }
+                                      ]
+                                    }
+                                  }
+                                ],
+                                "carousel_media_count": 3,
+                                "coauthor_producers": [],
+                                "location": null,
+                                "accessibility_caption": null,
+                                "comments_disabled": false
+                              }
+                            ]
+                          }
+                        }
+                      }
+                    }
+                  }
+                ]
+              ]
+            ]
+          }
+        }
+      ]
+    ]
+  ]
+}
