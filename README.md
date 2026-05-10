@@ -35,12 +35,12 @@ wrappers, structural keywords per surface, XHR-only stories endpoint.
 | 3. Apollo cache extractor | ✅ |
 | 4. Profile parser (`/{username}`) | ✅ |
 | 5. Post parser (`/p/{shortcode}/` + `/reel/`) | ✅ |
-| 6. Stories scraper (XHR-captured `reels_media`) | ✅ |
+| 6. Stories scraper (SSR `xdt_api__v1__feed__reels_media`) | ✅ |
 | 7. CLI (`auth`, `profile`, `post`, `stories`) | ✅ |
-| 8. Highlight + hashtag + location parsers | 📋 |
-| 9. Media downloader (photo + video) | 📋 |
-| 10. FilesystemAdapter (atomic writes) | 📋 |
-| 11. atelier-web-travels integration | 📋 |
+| 8. Media downloader (photo + video, atomic writes) | ✅ |
+| 9. Highlight + hashtag + location parsers | ✅ |
+| 10. FilesystemAdapter (`out/profiles \| posts \| stories/`) | ✅ |
+| 11. atelier-web-travels integration script | ✅ |
 
 ## Quick start
 
@@ -70,13 +70,50 @@ bunx instagram-scraper profile example_user
 # Scrape a single post or reel by shortcode
 bunx instagram-scraper post DYKbk_gCFm6
 
-# Scrape the 24h stories ring (Playwright captures the reels_media XHR)
+# Scrape the 24h stories ring (HD MP4 + audio, music sticker metadata)
 bunx instagram-scraper stories example_user
+
+# Permanent highlights album by id
+bunx instagram-scraper highlight 17900000000000000
+
+# Discovery
+bunx instagram-scraper hashtag running
+bunx instagram-scraper location 264617522
 ```
 
-All commands support `-o <path>` to write JSON to disk instead of stdout.
-The session lives in `~/.config/instagram-scraper/storage-state.json`
+All commands support:
+- `-o <path>` — write JSON to disk instead of stdout
+- `--download` — also save HD media files to disk (Phase 8)
+- `--root <dir>` — archive root (default: `~/.local/share/instagram-scraper`)
+
+`--download` writes to a typed tree:
+
+```
+<root>/profiles/<user>/profile.json + avatar.jpg
+<root>/posts/<user>/<shortcode>/post.json + media-01.jpg/.mp4 …
+<root>/stories/<user>/<YYYY-MM-DD>/<id>.json + <id>.jpg/.mp4
+```
+
+Session lives in `~/.config/instagram-scraper/storage-state.json`
 (override with `IG_STATE=/some/path`).
+
+## atelier-web-travels integration
+
+The sister project `atelier-web-travels` has had a "Phase 4.3c — Scraper
+Stories 24h" task pending since 2024. This repo ships
+`scripts/enrich-instagram-stories.mjs` (in the travels repo) that:
+
+1. Calls `scrapeStoriesForUser` for a given handle
+2. Downloads HD MP4 + cover JPG into `travel-data/ig-stories/<slug>/`
+3. Upserts `index.json` in the `IgStoryItem` shape `IgStoriesBlock` expects
+4. Prunes anything older than 24h by default (`--archive` keeps everything)
+
+Run:
+
+```bash
+cd ~/A-Projets/atelier/atelier-web-travels
+bun scripts/enrich-instagram-stories.mjs example-trip example_user
+```
 
 ## Programmatic API
 

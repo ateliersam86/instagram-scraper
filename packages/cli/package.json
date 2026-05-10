@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@atelier/instagram-scraper-core": "workspace:*",
+    "@atelier/instagram-scraper-storage": "workspace:*",
     "commander": "^12.1.0"
   },
   "publishConfig": { "access": "public" }

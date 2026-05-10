@@ -46,6 +46,21 @@ export {
   parseStoriesByUser,
 } from "./parse/stories.ts";
 export { scrapeStoriesForUser } from "./scrape/stories.ts";
+export { scrapeHighlightById } from "./scrape/highlight.ts";
+
+export { parseHashtagFromHtml } from "./parse/hashtag.ts";
+export type {
+  HashtagPostSummary,
+  InstagramHashtag,
+} from "./parse/hashtag.ts";
+export { parseLocationFromHtml } from "./parse/location.ts";
+export type { InstagramLocationPage } from "./parse/location.ts";
+
+export {
+  downloadMediaToFile,
+  downloadMediaSlots,
+} from "./download/media.ts";
+export type { DownloadResult } from "./download/media.ts";
 
 export { HttpClient } from "./http/client.ts";
 export type {
