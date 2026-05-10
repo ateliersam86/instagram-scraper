@@ -72,8 +72,8 @@ interface VideoCandidate {
 }
 
 interface LocationRaw {
-  pk?: string;
-  id?: string;
+  pk?: string | number;
+  id?: string | number;
   name?: string;
   slug?: string;
   short_name?: string;
@@ -192,10 +192,10 @@ function areaOf(c: { width?: number; height?: number } | undefined): number {
 
 function mapLocation(raw: LocationRaw | null | undefined): InstagramLocation | undefined {
   if (!raw) return undefined;
-  const id = raw.pk ?? raw.id;
+  const idRaw = raw.pk ?? raw.id;
   const name = raw.name;
-  if (!id || !name) return undefined;
-  const loc: InstagramLocation = { id, name };
+  if (idRaw === undefined || idRaw === null || !name) return undefined;
+  const loc: InstagramLocation = { id: String(idRaw), name };
   if (raw.slug) loc.slug = raw.slug;
   return loc;
 }
