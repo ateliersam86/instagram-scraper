@@ -27,3 +27,28 @@ export type {
   InstagramPostMedia,
   InstagramStoryItem,
 } from "./types/post.ts";
+
+export {
+  extractApolloCache,
+  extractApolloCacheAll,
+} from "./parse/apolloCache.ts";
+export type { ApolloExtractOptions } from "./parse/apolloCache.ts";
+
+export { parseProfileFromHtml } from "./parse/profile.ts";
+export {
+  parsePostFromHtml,
+  postFromWebInfoItem,
+  extractHashtags,
+  extractMentions,
+} from "./parse/post.ts";
+export {
+  parseStoriesFromReelsResponse,
+  parseStoriesByUser,
+} from "./parse/stories.ts";
+export { scrapeStoriesForUser } from "./scrape/stories.ts";
+
+export { HttpClient } from "./http/client.ts";
+export type {
+  CapturedResponse,
+  HttpClientOptions,
+} from "./http/client.ts";

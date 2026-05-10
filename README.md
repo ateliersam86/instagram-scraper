@@ -17,7 +17,7 @@ Targets:
 
 ## Status
 
-🚧 **Pre-alpha — Phase 0–1 shipped, parsers in design**
+🟢 **Alpha — 49 tests green, validated against real Instagram HTML (May 2026 recon)**
 
 **Detailed plan**: [`docs/PLAN.md`](docs/PLAN.md) covers the 12-phase
 roadmap, competitive landscape (instaloader / instagrapi / gallery-dl),
@@ -30,15 +30,80 @@ wrappers, structural keywords per surface, XHR-only stories endpoint.
 | Phase | Status |
 | ----- | ------ |
 | 0. Monorepo bootstrap | ✅ |
-| 1. Auth (Playwright persistent + cookie import) | 📋 planned |
-| 2. Profile parser (`/{username}`) | 📋 planned |
-| 3. Post parser (`/p/{shortcode}/`) | 📋 planned |
-| 4. Reel parser (`/reel/{shortcode}/`) | 📋 planned |
-| 5. Stories scraper (`/stories/{username}/`) | 📋 planned |
-| 6. Photos / videos download | 📋 planned |
-| 7. Storage adapters (FS / DB / S3) | 📋 planned |
-| 8. CLI | 📋 planned |
-| 9. atelier-web-travels integration | 📋 planned |
+| 1. Auth (Playwright persistent + cookie import) | ✅ |
+| 2. HTTP client + jitter + checkpoint detection | ✅ |
+| 3. Apollo cache extractor | ✅ |
+| 4. Profile parser (`/{username}`) | ✅ |
+| 5. Post parser (`/p/{shortcode}/` + `/reel/`) | ✅ |
+| 6. Stories scraper (XHR-captured `reels_media`) | ✅ |
+| 7. CLI (`auth`, `profile`, `post`, `stories`) | ✅ |
+| 8. Highlight + hashtag + location parsers | 📋 |
+| 9. Media downloader (photo + video) | 📋 |
+| 10. FilesystemAdapter (atomic writes) | 📋 |
+| 11. atelier-web-travels integration | 📋 |
+
+## Quick start
+
+```bash
+# install (no npm publish yet — installs straight from GitHub)
+bun add github:ateliersam86/instagram-scraper#main
+
+# or clone for development
+git clone https://github.com/ateliersam86/instagram-scraper.git
+cd instagram-scraper && bun install
+bun run test           # 49 tests
+bun run typecheck
+```
+
+## CLI
+
+```bash
+# One-time: open a real Chromium, log in (handles 2FA), save the session
+bunx instagram-scraper auth login
+
+# Verify the session still works
+bunx instagram-scraper auth status
+
+# Scrape a profile (og:* meta — works for public + followed-private accounts)
+bunx instagram-scraper profile example_user
+
+# Scrape a single post or reel by shortcode
+bunx instagram-scraper post DYKbk_gCFm6
+
+# Scrape the 24h stories ring (Playwright captures the reels_media XHR)
+bunx instagram-scraper stories example_user
+```
+
+All commands support `-o <path>` to write JSON to disk instead of stdout.
+The session lives in `~/.config/instagram-scraper/storage-state.json`
+(override with `IG_STATE=/some/path`).
+
+## Programmatic API
+
+```ts
+import {
+  HttpClient,
+  parseProfileFromHtml,
+  parsePostFromHtml,
+  scrapeStoriesForUser,
+} from "@atelier/instagram-scraper-core";
+
+const http = new HttpClient();
+await http.initWithStorageState("/path/to/storage-state.json");
+
+const html = await http.fetchHtml("https://www.instagram.com/example_user/");
+const profile = parseProfileFromHtml(html);
+// → { username, fullName, avatarUrl, followerCount, followingCount, postCount }
+
+const postHtml = await http.fetchHtml("https://www.instagram.com/p/DYKbk_gCFm6/");
+const post = parsePostFromHtml(postHtml);
+// → { shortcode, authorUsername, caption, likeCount, media[], hashtags, mentions }
+
+const stories = await scrapeStoriesForUser(http, "example_user");
+// → InstagramStoryItem[] with HD imageUrl/videoUrl, mentions, hashtags, music sticker
+
+await http.dispose();
+```
 
 ## Legal & ethics
 

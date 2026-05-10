@@ -1,0 +1,29 @@
+<!doctype html>
+<!--
+  Synthetic fixture mirroring the real Instagram profile-page HTML shape.
+  Anonymized: handle, full name, counts, and avatar URL are NOT from any
+  real account. The structure (og:* meta block with FR locale "followers /
+  suivis / publications" pattern) matches what Instagram served on
+  2026-05-10, so the parser test exercises the same code paths it does
+  against a real fetch.
+-->
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <title>Fixture Profile (1) Instagram</title>
+    <meta property="og:type" content="profile" />
+    <meta
+      property="og:image"
+      content="https://scontent-fixture.cdninstagram.com/v/t51.2885-19/000000000_111111111111111_2222222222222222222_n.jpg?stp=dst-jpg_s100x100_tt6&amp;ccb=7-5&amp;_nc_sid=fixture&amp;oh=00_AfFIXTURE&amp;oe=00000000"
+    />
+    <meta property="og:title" content="Fixture Cycliste 🚴 (@fixture_user) • Photos et vidéos Instagram" />
+    <meta property="og:url" content="https://www.instagram.com/fixture_user/" />
+    <meta
+      property="og:description"
+      content="412 followers, 530 suivis, 188 publications - Voir les photos et vidéos Instagram de Fixture Cycliste 🚴 (@fixture_user)"
+    />
+  </head>
+  <body>
+    <div id="react-root"></div>
+  </body>
+</html>
