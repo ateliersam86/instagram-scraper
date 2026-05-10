@@ -1,0 +1,17 @@
+{
+  "name": "@atelier/instagram-scraper-cli",
+  "version": "0.1.0",
+  "license": "MIT",
+  "type": "module",
+  "bin": { "instagram-scraper": "./dist/index.js" },
+  "files": ["dist", "README.md"],
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@atelier/instagram-scraper-core": "workspace:*",
+    "commander": "^12.1.0"
+  },
+  "publishConfig": { "access": "public" }
+}

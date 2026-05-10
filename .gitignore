@@ -1,0 +1,38 @@
+node_modules/
+dist/
+build/
+.next/
+coverage/
+.turbo/
+
+# Bun / package managers
+bun.lockb
+.pnpm-debug.log*
+.npm/
+
+# Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+
+# Env / secrets — NEVER commit Instagram cookies
+.env
+.env.local
+.env.*.local
+.ig-cookies.txt
+.instagram-session
+playwright-state/
+.auth/
+
+# Test outputs
+test-results/
+playwright-report/
+
+# Scraped data (sample fixtures only kept under tests/fixtures)
+scraped-output/
+out/
+
+# Real-Instagram validation artifacts — contain personal data, never commit
+scripts/_validation/
