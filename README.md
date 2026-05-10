@@ -17,7 +17,15 @@ Targets:
 
 ## Status
 
-🚧 **Pre-alpha — Phase 0 bootstrap, no parsers yet**
+🚧 **Pre-alpha — Phase 0–1 shipped, parsers in design**
+
+**Detailed plan**: [`docs/PLAN.md`](docs/PLAN.md) covers the 12-phase
+roadmap, competitive landscape (instaloader / instagrapi / gallery-dl),
+anti-bot strategy, and per-phase quality gates.
+
+**Surface research**: [`docs/SURFACES.md`](docs/SURFACES.md) documents the
+real Instagram HTML structure (May 2026 recon) — Apollo cache `__bbox`
+wrappers, structural keywords per surface, XHR-only stories endpoint.
 
 | Phase | Status |
 | ----- | ------ |
