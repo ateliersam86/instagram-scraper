@@ -35,6 +35,8 @@ export {
 export type { ApolloExtractOptions } from "./parse/apolloCache.ts";
 
 export { parseProfileFromHtml } from "./parse/profile.ts";
+export { parseProfilePostsFromHtml } from "./parse/profilePosts.ts";
+export type { ProfilePostRef } from "./parse/profilePosts.ts";
 export {
   parsePostFromHtml,
   postFromWebInfoItem,

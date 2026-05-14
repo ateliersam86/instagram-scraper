@@ -32,6 +32,7 @@ import {
   parseLocationFromHtml,
   parsePostFromHtml,
   parseProfileFromHtml,
+  parseProfilePostsFromHtml,
   scrapeHighlightById,
   scrapeStoriesForUser,
 } from "@atelier/instagram-scraper-core";
@@ -107,6 +108,28 @@ scrapingCommand("profile <username>", "Scrape a single Instagram profile.").acti
     }
   },
 );
+
+scrapingCommand(
+  "posts <username>",
+  "List recent post + reel shortcodes from a profile's grid (no fetching).",
+)
+  .option("--limit <n>", "Max shortcodes to extract (default 12)", (v) => Number.parseInt(v, 10), 12)
+  .action(async (username: string, options: SharedOpts & { limit: number }) => {
+    const http = await openHttp();
+    try {
+      // Profile grid is React-rendered → wait for at least one /p/ or /reel/
+      // anchor before extracting (avoid scraping the placeholder shell).
+      const html = await http.fetchHtmlWaitFor(
+        `https://www.instagram.com/${encodeURIComponent(username)}/`,
+        'a[href*="/p/"], a[href*="/reel/"]',
+        { selectorTimeoutMs: 12_000, networkIdle: false },
+      );
+      const refs = parseProfilePostsFromHtml(html, options.limit ?? 12);
+      await emit({ username, count: refs.length, posts: refs }, options.out);
+    } finally {
+      await http.dispose();
+    }
+  });
 
 scrapingCommand("post <shortcode>", "Scrape a single post or reel by shortcode.").action(
   async (shortcode: string, options: SharedOpts) => {

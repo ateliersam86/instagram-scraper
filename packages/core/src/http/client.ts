@@ -200,6 +200,45 @@ export class HttpClient {
     }
   }
 
+  /**
+   * Fetch HTML and wait for at least one element matching `selector` to
+   * be present (e.g. a grid card on a React-rendered profile page).
+   * Falls back to `fetchHtml` semantics if the selector times out — we
+   * still return whatever HTML is loaded.
+   */
+  async fetchHtmlWaitFor(
+    url: string,
+    selector: string,
+    options?: { selectorTimeoutMs?: number; networkIdle?: boolean },
+  ): Promise<string> {
+    if (!this.context) {
+      throw new Error("HttpClient not initialized — call initWithStorageState() first");
+    }
+    await this.sleepForJitter();
+    const page = await this.context.newPage();
+    try {
+      const response = await page.goto(url, {
+        timeout: this.navigationTimeoutMs,
+        waitUntil: options?.networkIdle ? "networkidle" : "domcontentloaded",
+      });
+      this.lastRequestAt = Date.now();
+      this.detectAuthFailure(page.url());
+      if (response && response.status() >= 400) {
+        throw new Error(`HTTP ${response.status()} on GET ${url}`);
+      }
+      try {
+        await page.waitForSelector(selector, {
+          timeout: options?.selectorTimeoutMs ?? 8_000,
+        });
+      } catch {
+        // Selector didn't show — non-fatal, caller gets whatever rendered.
+      }
+      return await page.content();
+    } finally {
+      await page.close().catch(() => undefined);
+    }
+  }
+
   async dispose(): Promise<void> {
     if (this.context) {
       await this.context.close().catch(() => undefined);
