@@ -24,6 +24,9 @@ export function parseProfilePostsFromHtml(html: string, limit = 12): ProfilePost
   for (const match of html.matchAll(SHORTCODE_RE)) {
     const type = match[1] === "reel" ? "reel" : "post";
     const shortcode = match[2];
+    // Le groupe 2 est garanti par la regex ; le garde satisfait
+    // `noUncheckedIndexedAccess` (match[2] typé string | undefined).
+    if (!shortcode) continue;
     if (!seen.has(shortcode)) {
       seen.set(shortcode, { shortcode, type });
       if (seen.size >= limit) break;
