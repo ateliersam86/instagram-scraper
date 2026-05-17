@@ -38,9 +38,7 @@ interface TrayResponse {
   data?: { highlights?: { edges?: ReadonlyArray<{ node?: TrayNode }> } };
 }
 
-export function parseHighlightsTray(
-  payload: TrayResponse | null | undefined,
-): HighlightAlbum[] {
+export function parseHighlightsTray(payload: TrayResponse | null | undefined): HighlightAlbum[] {
   const edges = payload?.data?.highlights?.edges;
   if (!Array.isArray(edges)) return [];
 

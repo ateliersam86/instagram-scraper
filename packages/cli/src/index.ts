@@ -115,7 +115,12 @@ scrapingCommand(
   "posts <username>",
   "List recent post + reel shortcodes from a profile's grid (no fetching).",
 )
-  .option("--limit <n>", "Max shortcodes to extract (default 12)", (v) => Number.parseInt(v, 10), 12)
+  .option(
+    "--limit <n>",
+    "Max shortcodes to extract (default 12)",
+    (v) => Number.parseInt(v, 10),
+    12,
+  )
   .action(async (username: string, options: SharedOpts & { limit: number }) => {
     const http = await openHttp();
     try {
@@ -245,9 +250,7 @@ scrapingCommand(
     const result: Array<{ album: (typeof albums)[number]; items: unknown[] }> = [];
     for (const album of albums) {
       const items = await scrapeHighlightById(http, album.id);
-      process.stderr.write(
-        `  "${album.title}" (${album.id}): ${items.length} item(s)\n`,
-      );
+      process.stderr.write(`  "${album.title}" (${album.id}): ${items.length} item(s)\n`);
       result.push({ album, items });
       if (fs) {
         const archiveName = `highlight-${album.id}`;
