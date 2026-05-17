@@ -12,14 +12,14 @@ function htmlWithMeta(...metas: Array<[string, string]>): string {
 describe("parseProfileFromHtml — synthetic", () => {
   it("extracts username + full name + avatar from og:title (FR locale)", () => {
     const html = htmlWithMeta(
-      ["title", "Sam (@example_user) • Photos et vidéos Instagram"],
+      ["title", "Example User (@example_user) • Photos et vidéos Instagram"],
       ["image", "https://cdn.example/avatar.jpg"],
       ["description", "399 followers, 512 suivis, 174 publications - Voir Instagram"],
     );
     const result = parseProfileFromHtml(html);
     expect(result).toEqual({
       username: "example_user",
-      fullName: "Sam",
+      fullName: "Example User",
       avatarUrl: "https://cdn.example/avatar.jpg",
       followerCount: 399,
       followingCount: 512,

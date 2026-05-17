@@ -83,8 +83,8 @@ Sam's profile recon found NO Apollo cache containing
 useful info:
 
 ```html
-<meta property="og:title" content="Example User 🚴 (@example_user) • Photos et vidéos Instagram">
-<meta property="og:description" content="399 followers, 512 suivis, 174 publications - Voir les photos et vidéos Instagram de Example User 🚴 (@example_user)">
+<meta property="og:title" content="Example User (@example_user) • Photos et vidéos Instagram">
+<meta property="og:description" content="399 followers, 512 suivis, 174 publications - Voir les photos et vidéos Instagram de Example User (@example_user)">
 <meta property="og:image" content="https://scontent-cdg6-1.cdninstagram.com/...">
 ```
 

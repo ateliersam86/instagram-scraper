@@ -96,7 +96,7 @@ function decodeHtmlEntities(input: string): string {
 
 /**
  * Extracts "example_user" from titles like:
- *   "Example User 🚴 (@example_user) • Photos et vidéos Instagram"
+ *   "Example User (@example_user) • Photos et vidéos Instagram"
  *   "Some Name (@handle) on Instagram: ..."
  */
 function extractUsernameFromTitle(title: string | undefined): string | undefined {

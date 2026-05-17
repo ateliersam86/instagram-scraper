@@ -47,9 +47,9 @@ Two consumer profiles share the same auth model:
 
 1. **Self** — Sam's own account. Full archive of own posts, reels, stories,
    tagged media, saved collections, highlights, and (eventually) DMs.
-2. **Followed accounts** — public OR private (Sam follows them). Same
-   pattern Strava's session uses for the reference account's data. Captures profile
-   info, posts, reels, active stories, highlights.
+2. **Followed accounts** — public OR private (you follow them). Same
+   pattern the Strava session uses for the reference account's data. Captures
+   profile info, posts, reels, active stories, highlights.
 
 **Out of scope** (deliberate):
 - Mass scraping of unfollowed accounts (TOS violation, account-ban risk)
