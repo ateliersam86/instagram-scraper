@@ -4,7 +4,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![TypeScript](https://img.shields.io/badge/TypeScript-strict-blue.svg)](https://www.typescriptlang.org/)
 
-> A TypeScript Instagram scraper. Profiles, posts, reels, stories — built on the same patterns that produced [`@ateliersam86/strava-scraper`](https://github.com/ateliersam86/strava-scraper).
+> A TypeScript Instagram scraper. Profiles, posts, reels, stories, highlights — built on the same patterns that produced [`@ateliersam86/strava-scraper`](https://github.com/ateliersam86/strava-scraper).
 
 ## Why?
 
@@ -17,7 +17,7 @@ Targets:
 
 ## Status
 
-🟢 **Alpha — 49 tests green, validated against real Instagram HTML (May 2026 recon)**
+🟢 **Alpha — 63 tests green, validated against real Instagram HTML (May 2026 recon)**
 
 **Detailed plan**: [`docs/PLAN.md`](docs/PLAN.md) covers the 12-phase
 roadmap, competitive landscape (instaloader / instagrapi / gallery-dl),
@@ -36,11 +36,12 @@ wrappers, structural keywords per surface, XHR-only stories endpoint.
 | 4. Profile parser (`/{username}`) | ✅ |
 | 5. Post parser (`/p/{shortcode}/` + `/reel/`) | ✅ |
 | 6. Stories scraper (SSR `xdt_api__v1__feed__reels_media`) | ✅ |
-| 7. CLI (`auth`, `profile`, `post`, `stories`) | ✅ |
+| 7. CLI (`auth`, `profile`, `post`, `stories`, `highlight`, `highlights`) | ✅ |
 | 8. Media downloader (photo + video, atomic writes) | ✅ |
 | 9. Highlight + hashtag + location parsers | ✅ |
 | 10. FilesystemAdapter (`out/profiles \| posts \| stories/`) | ✅ |
 | 11. atelier-web-travels integration script | ✅ |
+| 12. Highlights-tray discovery (all albums of a profile) | ✅ |
 
 ## Quick start
 
@@ -51,7 +52,7 @@ bun add github:ateliersam86/instagram-scraper#main
 # or clone for development
 git clone https://github.com/ateliersam86/instagram-scraper.git
 cd instagram-scraper && bun install
-bun run test           # 49 tests
+bun run test           # 63 tests
 bun run typecheck
 ```
 
@@ -73,8 +74,9 @@ bunx instagram-scraper post DYKbk_gCFm6
 # Scrape the 24h stories ring (HD MP4 + audio, music sticker metadata)
 bunx instagram-scraper stories example_user
 
-# Permanent highlights album by id
+# Permanent highlights — one album by id, or every album of a profile
 bunx instagram-scraper highlight 17900000000000000
+bunx instagram-scraper highlights example_user
 
 # Discovery
 bunx instagram-scraper hashtag running
@@ -106,13 +108,19 @@ Stories 24h" task pending since 2024. This repo ships
 1. Calls `scrapeStoriesForUser` for a given handle
 2. Downloads HD MP4 + cover JPG into `travel-data/ig-stories/<slug>/`
 3. Upserts `index.json` in the `IgStoryItem` shape `IgStoriesBlock` expects
-4. Prunes anything older than 24h by default (`--archive` keeps everything)
+
+The index is a permanent archive — entries are never pruned (the
+"active < 24h" badge is a runtime filter). A companion
+`scripts/enrich-instagram-highlights.mjs` does the same from a profile's
+permanent **Highlights** albums, the canonical source for real `takenAt`
+timestamps and for stories that were never caught while live.
 
 Run:
 
 ```bash
 cd ~/A-Projets/atelier/atelier-web-travels
-bun scripts/enrich-instagram-stories.mjs example-trip example_user
+bun scripts/enrich-instagram-stories.mjs    example-trip example_user
+bun scripts/enrich-instagram-highlights.mjs example-trip example_user
 ```
 
 ## Programmatic API
@@ -123,6 +131,8 @@ import {
   parseProfileFromHtml,
   parsePostFromHtml,
   scrapeStoriesForUser,
+  scrapeHighlightsTray,
+  scrapeHighlightById,
 } from "@atelier/instagram-scraper-core";
 
 const http = new HttpClient();
@@ -138,6 +148,11 @@ const post = parsePostFromHtml(postHtml);
 
 const stories = await scrapeStoriesForUser(http, "example_user");
 // → InstagramStoryItem[] with HD imageUrl/videoUrl, mentions, hashtags, music sticker
+
+const albums = await scrapeHighlightsTray(http, "example_user");
+// → HighlightAlbum[] { id, rawId, title, coverUrl } — every album of the profile
+const items = await scrapeHighlightById(http, albums[0].id);
+// → InstagramStoryItem[] — permanent, real takenAt (never expires)
 
 await http.dispose();
 ```
