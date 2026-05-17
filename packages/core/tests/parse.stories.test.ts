@@ -112,6 +112,16 @@ describe("parseStoriesFromReelsResponse", () => {
     expect(stories).toHaveLength(2);
   });
 
+  it("handles edges[].node connection shape (highlight albums)", () => {
+    const stories = parseStoriesFromReelsResponse({
+      edges: [
+        { node: { id: "highlight:1", items: [makeStoryItem()] } },
+        { node: { id: "highlight:2", items: [makeStoryItem({ id: "y", pk: "y" })] } },
+      ],
+    });
+    expect(stories).toHaveLength(2);
+  });
+
   it("computes expiresAt = takenAt + 24h when expiring_at is missing", () => {
     const { expiring_at: _drop, ...rest } = makeStoryItem();
     void _drop;

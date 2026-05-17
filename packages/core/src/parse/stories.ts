@@ -29,6 +29,13 @@ import type { InstagramStoryItem } from "../types/post.ts";
 interface ReelsMediaResponse {
   reels?: Record<string, Reel>;
   reels_media?: ReadonlyArray<Reel>;
+  /**
+   * Connection shape. The `/stories/highlights/{id}/` SSR embeds the
+   * album under `xdt_api__v1__feed__reels_media__connection`, a GraphQL
+   * connection `{ edges: [{ node: Reel }], page_info }` — each `node`
+   * is a reel carrying `items[]` (verified 2026-05 live recon).
+   */
+  edges?: ReadonlyArray<{ node?: Reel }>;
 }
 
 interface Reel {
@@ -107,6 +114,11 @@ function collectReels(payload: ReelsMediaResponse): Reel[] {
   if (payload.reels_media) {
     for (const reel of payload.reels_media) {
       if (reel) reels.push(reel);
+    }
+  }
+  if (payload.edges) {
+    for (const edge of payload.edges) {
+      if (edge?.node) reels.push(edge.node);
     }
   }
   return reels;

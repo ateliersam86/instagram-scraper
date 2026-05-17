@@ -8,7 +8,8 @@
  *   instagram-scraper profile <username>          scrape one profile
  *   instagram-scraper post <shortcode>            scrape one post / reel
  *   instagram-scraper stories <username>          scrape active 24h stories
- *   instagram-scraper highlights <id>             scrape a permanent highlight album
+ *   instagram-scraper highlight <id>              scrape one permanent highlight album
+ *   instagram-scraper highlights <username>       discover + scrape all of a profile's highlights
  *   instagram-scraper hashtag <tag>               scrape /explore/tags/{tag}/
  *   instagram-scraper location <id>               scrape /explore/locations/{id}/
  *
@@ -34,6 +35,7 @@ import {
   parseProfileFromHtml,
   parseProfilePostsFromHtml,
   scrapeHighlightById,
+  scrapeHighlightsTray,
   scrapeStoriesForUser,
 } from "@atelier/instagram-scraper-core";
 import { FilesystemAdapter } from "@atelier/instagram-scraper-storage";
@@ -229,6 +231,58 @@ scrapingCommand("highlight <id>", "Scrape a permanent Highlights album by id.").
     }
   },
 );
+
+scrapingCommand(
+  "highlights <username>",
+  "Discover and scrape ALL permanent Highlights albums of a profile.",
+).action(async (username: string, options: SharedOpts) => {
+  const http = await openHttp();
+  try {
+    const albums = await scrapeHighlightsTray(http, username);
+    process.stderr.write(`Found ${albums.length} highlight album(s) for @${username}\n`);
+
+    const fs = options.download ? makeFs(options.root) : null;
+    const result: Array<{ album: (typeof albums)[number]; items: unknown[] }> = [];
+    for (const album of albums) {
+      const items = await scrapeHighlightById(http, album.id);
+      process.stderr.write(
+        `  "${album.title}" (${album.id}): ${items.length} item(s)\n`,
+      );
+      result.push({ album, items });
+      if (fs) {
+        const archiveName = `highlight-${album.id}`;
+        for (const story of items) {
+          await fs.writeStory(archiveName, story);
+          const coverPath = fs.pathForStoryAsset(
+            archiveName,
+            story.id,
+            story.takenAt,
+            `${story.id}.jpg`,
+          );
+          await downloadMediaToFile(http, story.imageUrl, coverPath);
+          if (story.videoUrl) {
+            const videoPath = fs.pathForStoryAsset(
+              archiveName,
+              story.id,
+              story.takenAt,
+              `${story.id}.mp4`,
+            );
+            await downloadMediaToFile(http, story.videoUrl, videoPath);
+          }
+        }
+      }
+    }
+    await emit(result, options.out);
+    if (fs) {
+      const total = result.reduce((n, r) => n + r.items.length, 0);
+      process.stdout.write(
+        `Archived ${total} highlight item(s) across ${albums.length} album(s)\n`,
+      );
+    }
+  } finally {
+    await http.dispose();
+  }
+});
 
 scrapingCommand("hashtag <tag>", "Scrape /explore/tags/{tag}/.").action(
   async (tag: string, options: SharedOpts) => {

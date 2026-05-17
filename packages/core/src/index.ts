@@ -49,6 +49,9 @@ export {
 } from "./parse/stories.ts";
 export { scrapeStoriesForUser } from "./scrape/stories.ts";
 export { scrapeHighlightById } from "./scrape/highlight.ts";
+export { scrapeHighlightsTray } from "./scrape/highlightsTray.ts";
+export { parseHighlightsTray } from "./parse/highlightsTray.ts";
+export type { HighlightAlbum } from "./parse/highlightsTray.ts";
 
 export { parseHashtagFromHtml } from "./parse/hashtag.ts";
 export type {

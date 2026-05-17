@@ -111,15 +111,26 @@ export class HttpClient {
    * Navigate + capture the first XHR response matching a URL substring.
    * Essential for stories (which load via /api/v1/feed/reels_media/).
    *
+   * `requestPattern` (optional) additionally matches against the
+   * request's POST body — required for Instagram's `/graphql/query`
+   * endpoint, where every query hits the same URL and the only
+   * discriminator is `fb_api_req_friendly_name` in the body.
+   *
    * Example:
    *   const reels = await http.captureXhr(
    *     "https://www.instagram.com/stories/loic__beau/",
    *     "/api/v1/feed/reels_media/"
    *   );
+   *   const tray = await http.captureXhr(
+   *     "https://www.instagram.com/{user}/",
+   *     "/graphql/query",
+   *     "PolarisProfileStoryHighlightsTrayContentQuery",
+   *   );
    */
   async captureXhr<T = unknown>(
     navigateUrl: string,
     urlPattern: string | RegExp,
+    requestPattern?: string | RegExp,
   ): Promise<CapturedResponse<T>> {
     if (!this.context) {
       throw new Error("HttpClient not initialized — call initWithStorageState() first");
@@ -130,6 +141,12 @@ export class HttpClient {
       typeof urlPattern === "string"
         ? (u: string) => u.includes(urlPattern)
         : (u: string) => urlPattern.test(u);
+    const matchReq =
+      requestPattern == null
+        ? () => true
+        : typeof requestPattern === "string"
+          ? (d: string) => d.includes(requestPattern)
+          : (d: string) => requestPattern.test(d);
 
     const responsePromise = new Promise<CapturedResponse<T>>((resolve, reject) => {
       const timer = setTimeout(
@@ -140,6 +157,18 @@ export class HttpClient {
       page.on("response", async (response: any) => {
         const u = String(response.url());
         if (!matchFn(u)) return;
+        // Request-body match (e.g. GraphQL friendly name). Checked
+        // BEFORE clearTimeout so non-matching same-URL requests don't
+        // disarm the timeout and hang the capture forever.
+        if (requestPattern != null) {
+          let postData = "";
+          try {
+            postData = response.request().postData() ?? "";
+          } catch {
+            postData = "";
+          }
+          if (!matchReq(postData)) return;
+        }
         clearTimeout(timer);
         try {
           const body = (await response.json()) as T;
@@ -156,9 +185,13 @@ export class HttpClient {
       });
     });
 
+    // `domcontentloaded`, not `networkidle` : Instagram pages keep a
+    // steady trickle of background XHR, so `networkidle` never settles
+    // and times out. The capture is driven by `responsePromise`, which
+    // carries its own timeout — the navigation just needs to start.
     await page.goto(navigateUrl, {
       timeout: this.navigationTimeoutMs,
-      waitUntil: "networkidle",
+      waitUntil: "domcontentloaded",
     });
     this.lastRequestAt = Date.now();
     this.detectAuthFailure(page.url());
