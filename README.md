@@ -66,17 +66,17 @@ bunx instagram-scraper auth login
 bunx instagram-scraper auth status
 
 # Scrape a profile (og:* meta — works for public + followed-private accounts)
-bunx instagram-scraper profile example_user
+bunx instagram-scraper profile your_account
 
 # Scrape a single post or reel by shortcode
 bunx instagram-scraper post DYKbk_gCFm6
 
 # Scrape the 24h stories ring (HD MP4 + audio, music sticker metadata)
-bunx instagram-scraper stories example_user
+bunx instagram-scraper stories your_account
 
 # Permanent highlights — one album by id, or every album of a profile
 bunx instagram-scraper highlight 17900000000000000
-bunx instagram-scraper highlights example_user
+bunx instagram-scraper highlights your_account
 
 # Discovery
 bunx instagram-scraper hashtag running
@@ -119,8 +119,8 @@ Run:
 
 ```bash
 cd ~/A-Projets/atelier/atelier-web-travels
-bun scripts/enrich-instagram-stories.mjs    example-trip example_user
-bun scripts/enrich-instagram-highlights.mjs example-trip example_user
+bun scripts/enrich-instagram-stories.mjs    my-trip your_account
+bun scripts/enrich-instagram-highlights.mjs my-trip your_account
 ```
 
 ## Programmatic API
@@ -138,7 +138,7 @@ import {
 const http = new HttpClient();
 await http.initWithStorageState("/path/to/storage-state.json");
 
-const html = await http.fetchHtml("https://www.instagram.com/example_user/");
+const html = await http.fetchHtml("https://www.instagram.com/your_account/");
 const profile = parseProfileFromHtml(html);
 // → { username, fullName, avatarUrl, followerCount, followingCount, postCount }
 
@@ -146,10 +146,10 @@ const postHtml = await http.fetchHtml("https://www.instagram.com/p/DYKbk_gCFm6/"
 const post = parsePostFromHtml(postHtml);
 // → { shortcode, authorUsername, caption, likeCount, media[], hashtags, mentions }
 
-const stories = await scrapeStoriesForUser(http, "example_user");
+const stories = await scrapeStoriesForUser(http, "your_account");
 // → InstagramStoryItem[] with HD imageUrl/videoUrl, mentions, hashtags, music sticker
 
-const albums = await scrapeHighlightsTray(http, "example_user");
+const albums = await scrapeHighlightsTray(http, "your_account");
 // → HighlightAlbum[] { id, rawId, title, coverUrl } — every album of the profile
 const items = await scrapeHighlightById(http, albums[0].id);
 // → InstagramStoryItem[] — permanent, real takenAt (never expires)

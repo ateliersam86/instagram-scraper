@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest";
 import { parseHighlightsTray } from "../src/parse/highlightsTray.ts";
 
-// Shape verified against the real PolarisProfileStoryHighlightsTrayContentQuery
-// response (2026-05 live recon on @example_user).
+// Shape verified against a real PolarisProfileStoryHighlightsTrayContentQuery
+// response (2026-05 live recon). Account identifiers below are placeholders.
 const SAMPLE = {
   data: {
     highlights: {
