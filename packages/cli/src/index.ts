@@ -18,6 +18,11 @@
  *   --download      also download HD media to the FilesystemAdapter tree
  *   --root <dir>    archive root (default: ~/.local/share/instagram-scraper)
  *
+ * `highlights` also accepts:
+ *   --album <titles>   only albums whose title matches (comma-separated)
+ *   --since <date>     only items posted on/after this date
+ *   --until <date>     only items posted on/before this date
+ *
  * Session lives in `$IG_STATE` or `~/.config/instagram-scraper/storage-state.json`.
  */
 
@@ -51,7 +56,7 @@ const program = new Command();
 program
   .name("instagram-scraper")
   .description("Scrape Instagram profiles, posts, reels, stories, highlights, hashtags, locations.")
-  .version("0.2.0");
+  .version("0.3.0");
 
 const auth = program.command("auth").description("Authentication");
 auth
@@ -240,52 +245,89 @@ scrapingCommand("highlight <id>", "Scrape a permanent Highlights album by id.").
 scrapingCommand(
   "highlights <username>",
   "Discover and scrape ALL permanent Highlights albums of a profile.",
-).action(async (username: string, options: SharedOpts) => {
-  const http = await openHttp();
-  try {
-    const albums = await scrapeHighlightsTray(http, username);
-    process.stderr.write(`Found ${albums.length} highlight album(s) for @${username}\n`);
+)
+  .option(
+    "--album <titles>",
+    "Only albums whose title contains one of these (comma-separated, case-insensitive)",
+  )
+  .option("--since <date>", "Only items posted on/after this date (ISO, e.g. 2026-04-30)")
+  .option(
+    "--until <date>",
+    "Only items posted on/before this date (ISO; a bare YYYY-MM-DD covers the whole day)",
+  )
+  .action(
+    async (
+      username: string,
+      options: SharedOpts & { album?: string; since?: string; until?: string },
+    ) => {
+      const http = await openHttp();
+      try {
+        let albums = await scrapeHighlightsTray(http, username);
+        process.stderr.write(`Found ${albums.length} highlight album(s) for @${username}\n`);
 
-    const fs = options.download ? makeFs(options.root) : null;
-    const result: Array<{ album: (typeof albums)[number]; items: unknown[] }> = [];
-    for (const album of albums) {
-      const items = await scrapeHighlightById(http, album.id);
-      process.stderr.write(`  "${album.title}" (${album.id}): ${items.length} item(s)\n`);
-      result.push({ album, items });
-      if (fs) {
-        const archiveName = `highlight-${album.id}`;
-        for (const story of items) {
-          await fs.writeStory(archiveName, story);
-          const coverPath = fs.pathForStoryAsset(
-            archiveName,
-            story.id,
-            story.takenAt,
-            `${story.id}.jpg`,
+        // --album : keep only albums whose title matches a needle
+        // (substring, case-insensitive). No flag → every album.
+        const needles = (options.album ?? "")
+          .split(",")
+          .map((s) => s.trim().toLowerCase())
+          .filter(Boolean);
+        if (needles.length > 0) {
+          albums = albums.filter((a) => needles.some((n) => a.title.toLowerCase().includes(n)));
+          process.stderr.write(`  → ${albums.length} album(s) match --album\n`);
+        }
+
+        // --since / --until : date window applied to each item's takenAt.
+        const sinceMs = parseDateBound(options.since, false) ?? Number.NEGATIVE_INFINITY;
+        const untilMs = parseDateBound(options.until, true) ?? Number.POSITIVE_INFINITY;
+        const inWindow = (iso: string) => {
+          const t = Date.parse(iso);
+          return Number.isFinite(t) && t >= sinceMs && t <= untilMs;
+        };
+
+        const fs = options.download ? makeFs(options.root) : null;
+        const result: Array<{ album: (typeof albums)[number]; items: unknown[] }> = [];
+        for (const album of albums) {
+          const all = await scrapeHighlightById(http, album.id);
+          const items = all.filter((s) => inWindow(s.takenAt));
+          process.stderr.write(
+            `  "${album.title}" (${album.id}): ${items.length}/${all.length} item(s)\n`,
           );
-          await downloadMediaToFile(http, story.imageUrl, coverPath);
-          if (story.videoUrl) {
-            const videoPath = fs.pathForStoryAsset(
-              archiveName,
-              story.id,
-              story.takenAt,
-              `${story.id}.mp4`,
-            );
-            await downloadMediaToFile(http, story.videoUrl, videoPath);
+          result.push({ album, items });
+          if (fs) {
+            const archiveName = `highlight-${album.id}`;
+            for (const story of items) {
+              await fs.writeStory(archiveName, story);
+              const coverPath = fs.pathForStoryAsset(
+                archiveName,
+                story.id,
+                story.takenAt,
+                `${story.id}.jpg`,
+              );
+              await downloadMediaToFile(http, story.imageUrl, coverPath);
+              if (story.videoUrl) {
+                const videoPath = fs.pathForStoryAsset(
+                  archiveName,
+                  story.id,
+                  story.takenAt,
+                  `${story.id}.mp4`,
+                );
+                await downloadMediaToFile(http, story.videoUrl, videoPath);
+              }
+            }
           }
         }
+        await emit(result, options.out);
+        if (fs) {
+          const total = result.reduce((n, r) => n + r.items.length, 0);
+          process.stdout.write(
+            `Archived ${total} highlight item(s) across ${result.length} album(s)\n`,
+          );
+        }
+      } finally {
+        await http.dispose();
       }
-    }
-    await emit(result, options.out);
-    if (fs) {
-      const total = result.reduce((n, r) => n + r.items.length, 0);
-      process.stdout.write(
-        `Archived ${total} highlight item(s) across ${albums.length} album(s)\n`,
-      );
-    }
-  } finally {
-    await http.dispose();
-  }
-});
+    },
+  );
 
 scrapingCommand("hashtag <tag>", "Scrape /explore/tags/{tag}/.").action(
   async (tag: string, options: SharedOpts) => {
@@ -337,6 +379,21 @@ async function openHttp(): Promise<HttpClient> {
   const http = new HttpClient();
   await http.initWithStorageState(STATE_PATH);
   return http;
+}
+
+/**
+ * Parse a `--since` / `--until` date bound to epoch ms. When `endOfDay`
+ * is set, a bare `YYYY-MM-DD` is extended to 23:59:59.999 so `--until`
+ * covers the whole day. Returns null when absent or unparseable.
+ */
+function parseDateBound(value: string | undefined, endOfDay: boolean): number | null {
+  if (!value) return null;
+  const ms = Date.parse(value);
+  if (Number.isNaN(ms)) return null;
+  if (endOfDay && /^\d{4}-\d{2}-\d{2}$/.test(value.trim())) {
+    return ms + 86_400_000 - 1;
+  }
+  return ms;
 }
 
 function makeFs(rootOpt: string | undefined): FilesystemAdapter {

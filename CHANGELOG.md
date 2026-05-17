@@ -4,6 +4,19 @@ All notable changes to `instagram-scraper`. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/); versions are shared
 across the monorepo packages.
 
+## 0.3.0 — 2026-05-17
+
+### Added
+- CLI `highlights <username>` gains filter flags:
+  - `--album <titles>` — only albums whose title contains one of these
+    (comma-separated, case-insensitive substring match).
+  - `--since <date>` / `--until <date>` — keep only items posted within
+    the date window (a bare `YYYY-MM-DD` for `--until` covers the day).
+- A privacy-oriented `pre-push` git hook (`.githooks/pre-push`) — blocks
+  pushes that introduce secrets or denylisted identifiers; `--scan-all`
+  audits the whole tree before publishing. Denylist stays local, never
+  committed (see `.githooks/denylist.sample`).
+
 ## 0.2.0 — 2026-05-17
 
 ### Added

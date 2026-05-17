@@ -1,6 +1,6 @@
 {
   "name": "@atelier/instagram-scraper-core",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Core HTML scraper for Instagram (profiles, posts, reels, stories).",
   "license": "MIT",
   "type": "module",

@@ -78,6 +78,10 @@ bunx instagram-scraper stories your_account
 bunx instagram-scraper highlight 17900000000000000
 bunx instagram-scraper highlights your_account
 
+# Filter highlights — by album title, and/or by date window
+bunx instagram-scraper highlights your_account --album "Trip,Food"
+bunx instagram-scraper highlights your_account --since 2026-04-30 --until 2026-05-15
+
 # Discovery
 bunx instagram-scraper hashtag running
 bunx instagram-scraper location 264617522

@@ -1,7 +1,7 @@
 {
   "name": "instagram-scraper-monorepo",
   "private": true,
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "TypeScript Instagram HTML scraper. Profiles, posts, reels, stories — anti-bot-aware via Playwright persistent context. Built on the patterns of @atelier/strava-scraper.",
   "license": "MIT",
   "author": "Samuel Muselet <sam.muselet@gmail.com>",
